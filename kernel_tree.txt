@@ -1,0 +1,17 @@
+HTC Desire Z:
+============
+Cyanogenmod: https://github.com/CyanogenMod/htc-kernel-msm7x30.git
+
+Google Nexus One:
+================
+Stock Android: https://android.googlesource.com/kernel/msm.git
+Cyanogenmod: git://github.com/CyanogenMod/cm-kernel.git
+
+Google Galaxy Nexus:
+===================
+Stock Android: https://android.googlesource.com/kernel/omap.git
+
+LG Optimus 2x (p920):
+=====================
+LG Android: look at lgs website
+Cyanogenmod: https://github.com/CyanogenMod/lge-kernel-cosmo.git
