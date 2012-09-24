@@ -1,53 +1,112 @@
 #!/bin/bash
-
-if [ $# -lt 2 ]; then
-	echo "usage: $0 <skriptname> <device>"
-	echo "devices: g1, n1, desirez,qemu,p920,omap"
-	exit 1
-fi
-
-DEVICE=$2
-SCRIPT=$1
-MODULE_NAME=${SCRIPT//./}
+CONF_DIR="config"
+CONF_EXT=".conf"
 MODULE_DIR="modules"
 SCRIPT_DIR="scripts"
 
-PREFIX="/fs/students/sfb876-a1/android/"
-STAP=$PREFIX"/systemtap/installed/bin/stap"
-TOOLCHAIN=$PREFIX"/roms/android_origin/prebuilt/linux-x86/toolchain/arm-eabi-4.4.0/bin/arm-eabi-"
-TAPSETS=$PREFIX"/systemtap/installed/share/systemtap/tapset/"
-STAP_RUNTIME=$PREFIX"/systemtap/installed/share/systemtap/runtime/"
+PREFIX=`pwd`
+STAP=$PREFIX"/installed/bin/stap"
+TAPSETS=$PREFIX"/installed/share/systemtap/tapset/"
+STAP_RUNTIME=$PREFIX"/installed/share/systemtap/runtime/"
 
-case $DEVICE in
-"g1")
-    KERNEL_SRC=$PREFIX"/kernel/msm_g1";;
-"n1")
-    KERNEL_SRC=$PREFIX"/kernel/cyanogenmod_generic";;
-"n1-2")
-    KERNEL_SRC=$PREFIX"/kernel/msm_n1";;
-"desirez")
-    KERNEL_SRC=$PREFIX"/kernel/cyanogenmod_desirez";;
-"qemu")
-    KERNEL_SRC=$PREFIX"/kernel/qemu";;
-"p920")
-    KERNEL_SRC=$PREFIX"/kernel/p920";;
-"omap")
-    KERNEL_SRC=$PREFIX"/kernel/omap";;
-*)
-  echo "Unknown device specified!"
-  exit 1;;
-esac
+COMPILER_PREFIX_LIST=("arm-none-linux-gnueabi-" "arm-eabi-" "arm-none-eabi-")
 
-if [ ! -d $MODULE_DIR ]; then
-	mkdir output
+function listSupportedDevices()
+{
+	echo -n "devices: "
+	ls ${CONF_DIR}/*${CONF_EXT} >/dev/null 2>&1
+	if [ $? -gt 0 ];
+	then
+		echo "no devices found"
+		return
+	fi
+	for device in `ls ${CONF_DIR}/*${CONF_EXT}`;
+	do
+		device=`basename ${device}`
+		echo -n ${device%${CONF_EXT}}","
+	done;
+	echo "."
+}
+
+function checkCompiler()
+{
+	for cur_compiler_prefix in ${COMPILER_PREFIX_LIST[@]}
+	do
+		RET=`${cur_compiler_prefix}gcc --version 2>&1`
+		if [ $? -eq 0 ];
+		then
+			COMPILER_PREFIX=${cur_compiler_prefix}
+			return
+		fi
+	done;
+
+	echo "No suitable compiler found. Check your PATH" >&2
+	exit 1
+}
+
+function getKernelInfos()
+{
+	if [ ! -d ${CONF_DIR} ];
+	then
+		echo "conf directory does not exist" >&2
+		exit 1
+	fi
+	DEVICE=$1
+	CONF_FILE=${CONF_DIR}/${DEVICE}${CONF_EXT}
+
+	if [ -f ${CONF_FILE} ];
+	then
+		KERNEL_SRC=`cat ${CONF_FILE}`
+		if [ ! -d ${KERNEL_SRC} ];
+		then
+			echo "kernel source tree (${KERNEL_SRC}) does not exit. Check the corresponding config file: ${CONF_FILE}" >&2
+			exit 1
+		fi
+	else
+		echo "config file (${CONF_FILE}) does not exist." >&2
+		exit 1
+	fi
+}
+
+function usage()
+{
+	echo "usage: $1 <skriptname> <device>"
+	listSupportedDevices
+	exit 1
+}
+
+if [ $# -lt 2 ];
+then
+	usage $0
 fi
 
-if [ ! -d $MODULE_DIR"/"$DEVICE ]; then
-	mkdir $MODULE_DIR"/"$DEVICE
+checkCompiler
+
+getKernelInfos $2
+
+SCRIPT=$1
+if [ ! -f ${SCRIPT_DIR}/${SCRIPT}".stp" ];
+then
+	echo "The specifid script (${SCRIPT}.stp) does not exist" >&2	
+	exit 1
 fi
 
-echo "$STAP -p 4 -v $3 -a arm -B CROSS_COMPILE=$TOOLCHAIN -r $KERNEL_SRC -j $TAPSETS -R $STAP_RUNTIME -t -g -m $MODULE_NAME $SCRIPT_DIR/$SCRIPT.stp"
-$STAP -p 4 -v $3 -a arm -B CROSS_COMPILE=$TOOLCHAIN -r $KERNEL_SRC -j $TAPSETS -R $STAP_RUNTIME -t -g -m $MODULE_NAME $SCRIPT_DIR"/"$SCRIPT.stp
-if [ -f $MODULE_NAME".ko" ]; then
-	mv $MODULE_NAME".ko" $MODULE_DIR"/"$DEVICE"/"$MODULE_NAME".ko"
+MODULE_NAME=${SCRIPT//./}
+
+
+if [ ! -d ${MODULE_DIR} ]; then
+	echo "module directory does not exist. Creating it..."
+	mkdir ${MODULE_DIR}
+fi
+
+if [ ! -d ${MODULE_DIR}"/"${DEVICE} ]; then
+	mkdir ${MODULE_DIR}"/"${DEVICE}
+fi
+
+STAP_CMD="${STAP} -p 4 -v ${3} -a arm -B CROSS_COMPILE=${COMPILER_PREFIX} -r ${KERNEL_SRC} -j ${TAPSETS} -R ${STAP_RUNTIME} -t -g -m ${MODULE_NAME} ${SCRIPT_DIR}/${SCRIPT}.stp"
+echo "Executing: ${STAP_CMD}"
+${STAP_CMD}
+
+if [ -f ${MODULE_NAME}".ko" ]; then
+	mv ${MODULE_NAME}".ko" ${MODULE_DIR}"/"${DEVICE}"/"${MODULE_NAME}".ko"
 fi;

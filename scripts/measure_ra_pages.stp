@@ -1,0 +1,73 @@
+#! /usr/bin/stap
+
+global count_opencalls
+global local_entry_time[8192]
+global filenames[32768]
+global min_ra
+global max_ra
+
+function psyscall_entry(filename:string)
+{
+	local_entry_time[tid()] = task_stime()
+	count_opencalls++
+	filenames[tid()] = filename
+}
+
+function psyscall_end()
+{
+	delete filenames[tid()]
+	delete local_entry_time[tid()]
+}
+
+probe begin
+{
+	count_opencalls = 0
+	max_ra = 0
+	min_ra = 13371337
+}
+
+probe end
+{
+	printf("open calls:%d, min:%d, max:%d\n\n",count_opencalls,min_ra,max_ra);
+}
+
+
+probe syscall.open* ?
+{
+	psyscall_entry(filename)
+}
+
+probe syscall.open*.return ?
+{
+	if (!local_entry_time[tid()]) next
+	psyscall_end()
+}
+
+probe syscall.creat ?
+{
+	psyscall_entry(pathname)
+}
+
+probe syscall.creat.return ?
+{
+	if (!local_entry_time[tid()]) next
+	psyscall_end()
+}
+
+probe kernel.function("fd_install")
+{
+        if (filenames[tid()] == "") next
+
+	if ($file->f_mapping->backing_dev_info == $file->f_path->dentry->d_sb->s_bdi)
+	{
+		pages = $file->f_mapping->backing_dev_info->ra_pages
+		if (pages > max_ra)
+		{
+			max_ra = pages
+		}
+		if (pages < min_ra)
+		{
+			min_ra = pages
+		}
+	}
+}
