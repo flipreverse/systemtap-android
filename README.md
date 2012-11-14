@@ -1,4 +1,49 @@
-systemtap-android
-=================
+SystemTap for Android
+=====================
 
-A collection of scripts, tools and sourcecode to build and install systemtap on android
+This repository contains a collection of scripts, tools and sourcecode to build, install and run SystemTap on Android.
+For further information about SystemTap i would appreciate you to read the documentation published by the official SystemTap project:
+	http://sourceware.org/systemtap/documentation.html
+
+Requirments
+------------
+* Before you can start, you have to clone the submodules. Just run two commands:
+	git submodule init
+	git submodule upate
+
+Building SystemTap
+------------------
+To be able to compile your systemtap scripts for android, just start the buildscript:
+`./build.sh`
+It automatically configures, build and installs systemtap for you.
+You can find this installation in the `installed` directory. It is independet from any other installation on your system.
+The script builds the arm binaries as well. There are located at `src/android_binaries`.
+
+Setting up a device config
+--------------------------
+Before you can compile your stap script into a kernelmodule. You have to create a configuration for the target platform.
+So far a configuration consists of a path to the kernel sourcetree.
+
+To create such a configuration write the path in a textfile named `<device>.conf` and place it under the `config` directory.
+Here is an example for the `Samsung Galaxy Nexus`:
+	omap.conf, contents: /path/to/my/kernel/omap
+	
+Compile a script for android
+----------------------------
+Ensure that you have created a configuration for your device under `conf/` and the kernel tree is prepared for compiling modules.
+Your script should be located in the `scripts` directory.
+To start the compilation:
+	./build_module.sh <devicename> <script>
+
+Where `<devicename` specifies the configuration to be used and `<script>` the systemtap script.
+Important: Omit the filename extension from both parameters.
+
+The compiled script is located  in `modules/<devicename>/`.
+
+Run a compiled script (aka kernelmodule) on android
+---------------------------------------------------
+First you need to install the SystemTap Android Application located in `android-app` on your device. It is a Eclipse project. So import it to Eclipse and install it on your device.
+Now place the compiled script on the sdcard under the `/sdcard/systemtap/modules/ directory.
+Just start the android app, select the module and start it. :-)
+
+NOTICE: The Android application is pre-release. So be patient with it. :-)
