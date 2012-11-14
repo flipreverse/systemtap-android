@@ -10,6 +10,7 @@ ELFUTILS_TAR="elfutils-"${ELFUTILS_VERSION}".tar.bz2"
 CONFIGURE_OUTPUT="${SRC_DIR}/configure_out.txt"
 MAKE_OUTPUT="${SRC_DIR}/make_out.txt"
 NUM_CPUS=`grep -c ^processor /proc/cpuinfo`	
+BUILDSCRIPT_ANDROID="./build_android.sh"
 
 if [ ! -d ${ELFUTILS_DIR} ];
 then
@@ -65,5 +66,8 @@ fi
 
 echo "Installing systemtap in ${INSTALL_DIR}..."
 make install > /dev/null
+
+echo "Starting buildscript for android..."
+${BUILDSCRIPT_ANDROID} > /dev/null
 
 cd ${PWD}
