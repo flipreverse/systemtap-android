@@ -1,6 +1,3 @@
 [submodule "android-app"]
 	path = android-app
 	url = git@github.com:flipreverse/systemtap-android-app.git
-[submodule "src"]
-	path = src
-	url = git@github.com:flipreverse/systemtap-android-src.git
