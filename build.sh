@@ -30,6 +30,12 @@ then
 fi
 
 cd ${SRC_DIR}
+if [ -e "Makefile" ];
+then
+	echo "Workspace already configured. Cleaning it..."
+	make distclean
+fi
+
 CONFIGURE_CMD="./configure --prefix=${INSTALL_DIR} --with-elfutils=${ELFUTILS_DIR}"
 echo "Executing ${CONFIGURE_CMD}"
 ${CONFIGURE_CMD} > ${CONFIGURE_OUTPUT} 2>&1
