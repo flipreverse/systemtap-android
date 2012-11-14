@@ -9,7 +9,7 @@ STAP=$PREFIX"/installed/bin/stap"
 TAPSETS=$PREFIX"/installed/share/systemtap/tapset/"
 STAP_RUNTIME=$PREFIX"/installed/share/systemtap/runtime/"
 
-COMPILER_PREFIX_LIST=("arm-none-linux-gnueabi-" "arm-eabi-" "arm-none-eabi-")
+COMPILER_PREFIX_LIST=("arm-eabi-" "arm-none-linux-gnueabi-" "arm-none-eabi-")
 
 function listSupportedDevices()
 {
