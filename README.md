@@ -10,13 +10,14 @@ Requirments
 * Before you can start, you have to clone the submodules. Just run two commands:
 
 	`git submodule init`
+
 	`git submodule upate`
 
 Building SystemTap
 ------------------
 To be able to compile your systemtap scripts for android, just start the buildscript:
 
-	`./build.sh`
+	./build.sh
 
 It automatically configures, build and installs systemtap for you.
 You can find this installation in the `installed` directory. It is independet from any other installation on your system.
