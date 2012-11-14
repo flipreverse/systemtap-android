@@ -8,13 +8,16 @@ For further information about SystemTap i would appreciate you to read the docum
 Requirments
 ------------
 * Before you can start, you have to clone the submodules. Just run two commands:
-	git submodule init
-	git submodule upate
+
+	`git submodule init`
+	`git submodule upate`
 
 Building SystemTap
 ------------------
 To be able to compile your systemtap scripts for android, just start the buildscript:
-`./build.sh`
+
+	`./build.sh`
+
 It automatically configures, build and installs systemtap for you.
 You can find this installation in the `installed` directory. It is independet from any other installation on your system.
 The script builds the arm binaries as well. There are located at `src/android_binaries`.
@@ -26,6 +29,7 @@ So far a configuration consists of a path to the kernel sourcetree.
 
 To create such a configuration write the path in a textfile named `<device>.conf` and place it under the `config` directory.
 Here is an example for the `Samsung Galaxy Nexus`:
+
 	omap.conf, contents: /path/to/my/kernel/omap
 	
 Compile a script for android
