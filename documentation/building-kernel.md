@@ -20,15 +20,18 @@ Build your own kernel for your android device
 
 2. You need the config for currently running kernel
 	a. Custom images like CyanogenMod have enabled config export through the proc-filesystem. You could obtain it by:
-		* `adb pull /proc/config.gz .`
-		* `gunzip config.gz`
-		* `cp config /path/to/your/kernel/.config`
+	
+		`adb pull /proc/config.gz .`
+	
+		`gunzip config.gz`
+	
+		`cp config /path/to/your/kernel/.config`
 	
 	b. If you run a stock image, have a look at `documentation/kernel-tree.txt`. It lists a set of Android device their kernel trees and the matching default config.
 
 3. Set the `CROSS_COMPILE` variable.
 
-	export CROSS_COMPILE=/path/to/your/toolchain/`
+	export CROSS_COMPILE=/path/to/your/toolchain/
 	
 For the Android prebuilt toolchain this step may look like:
 
@@ -49,7 +52,7 @@ Set all needed options for SystemTap descriped in [7]
 The compiled kernel image is located in `arch/arm/boot/`.
 
 6. Now you need the current boot image, because it contains the initialramdisk which we will recylce. First, determine the boot partition.
- Newer devices place symlinks with  human readable names in `/dev/`, e.g. the `Samsung Galaxy Nexus` `/dev/block/platform/omap/omap_hsmmc.0/by-name/boot`
+ Newer devices place symlinks with  human readable names in `/dev/`, e.g. the `Samsung Galaxy Nexus` `/dev/block/platform/omap/omap_hsmmc.0/by-name/boot`.
 Otherwise you have to determine the kind of flashdriver used and print the partitiontable. Two examples are given below:
 
 	* HTC Dream (aka T-Mobile G1): cat /proc/mtd
