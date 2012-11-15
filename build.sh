@@ -9,6 +9,7 @@ ELFUTILS_TAR="elfutils-"${ELFUTILS_VERSION}".tar.bz2"
 
 CONFIGURE_OUTPUT="${SRC_DIR}/configure_out.txt"
 MAKE_OUTPUT="${SRC_DIR}/make_out.txt"
+ANDROID_BUILD_OUTPUT="${SRC_DIR}/android_build_out.txt"
 NUM_CPUS=`grep -c ^processor /proc/cpuinfo`	
 BUILDSCRIPT_ANDROID="./build_android.sh"
 
@@ -34,7 +35,7 @@ cd ${SRC_DIR}
 if [ -e "Makefile" ];
 then
 	echo "Workspace already configured. Cleaning it..."
-	make distclean
+	make distclean > /dev/null 2>&1
 fi
 
 CONFIGURE_CMD="./configure --prefix=${INSTALL_DIR} --with-elfutils=${ELFUTILS_DIR}"
@@ -65,9 +66,14 @@ then
 fi
 
 echo "Installing systemtap in ${INSTALL_DIR}..."
-make install > /dev/null
+make install >> ${MAKE_OUTPUT} 2>&1
 
 echo "Starting buildscript for android..."
-${BUILDSCRIPT_ANDROID} > /dev/null
+${BUILDSCRIPT_ANDROID} > ${ANDROID_BUILD_OUTPUT} 2>&1
+
+echo "Information about every step during the build process is located at ${SRC_DIR}:"
+echo "configure:	${CONFIGURE_OUTPUT}"
+echo "make:		${MAKE_OUTPUT}"
+echo "android binaries:	${ANDROID_BUILD_OUTPUT}"
 
 cd ${PWD}
