@@ -2,8 +2,7 @@ SystemTap for Android
 =====================
 
 This repository contains a collection of scripts, tools and sourcecode to build, install and run SystemTap on Android.
-For further information about SystemTap i would appreciate you to read the documentation published by the official SystemTap project:
-	http://sourceware.org/systemtap/documentation.html
+For further information about SystemTap i would appreciate you to read the documentation published by the official SystemTap project [1].
 
 Requirments
 ------------
@@ -37,7 +36,8 @@ Compile a script for android
 ----------------------------
 Ensure that you have created a configuration for your device under `conf/` and the kernel tree is prepared for compiling modules.
 Your script should be located in the `scripts` directory.
-To start the compilation:
+Make sure you have an ARM toolchain in your PATH, e.g. the Android prebuilt one [2] or the one from MentorGraphics [3].
+To start compilation:
 	./build_module.sh <devicename> <script>
 
 Where `<devicename` specifies the configuration to be used and `<script>` the systemtap script.
@@ -47,8 +47,14 @@ The compiled script is located  in `modules/<devicename>/`.
 
 Run a compiled script (aka kernelmodule) on android
 ---------------------------------------------------
-First you need to install the SystemTap Android Application located in `android-app` on your device. It is a Eclipse project. So import it to Eclipse and install it on your device.
+First you need to install the SystemTap Android Application located `android-app` on your device. It is a Eclipse project. So import it to Eclipse and install it on your device. (Note: You have to create a library project for SherlockActionbar aswell. A tarball containing the sources is located in `android-app/`.)
 Now place the compiled script on the sdcard under the `/sdcard/systemtap/modules/ directory.
 Just start the android app, select the module and start it. :-)
 
-NOTICE: The Android application is pre-release. So be patient with it. :-)
+NOTICE: The Android application is pre-release(!!!). So be patient with it. :-)
+
+Sources
+--------
+[1] http://sourceware.org/systemtap/documentation.html
+[2] https://android.googlesource.com/platform/prebuilt
+[3] http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition/
