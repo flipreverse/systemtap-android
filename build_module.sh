@@ -32,9 +32,11 @@ function checkCompiler()
 {
 	for cur_compiler_prefix in ${COMPILER_PREFIX_LIST[@]}
 	do
-		RET=`${cur_compiler_prefix}gcc --version 2>&1`
+		CUR_GCC="${cur_compiler_prefix}gcc"
+		RET=`${CUR_GCC} --version 2>&1`
 		if [ $? -eq 0 ];
 		then
+			#COMPILER_PREFIX=`dirname \`which ${CUR_GCC}\``"/${cur_compiler_prefix}"
 			COMPILER_PREFIX=${cur_compiler_prefix}
 			return
 		fi
