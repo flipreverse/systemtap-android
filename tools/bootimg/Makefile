@@ -5,8 +5,8 @@ CFLAGS= -g -Werror
 
 all: $(BINARIES)
 
-unpackbootimg: bootimg.h extract_bootimg.c
-	$(CC) $(CFLAGS) extract_bootimg.c -o $@
+unpackbootimg: bootimg.h unpackbootimg.c
+	$(CC) $(CFLAGS) unpackbootimg.c -o $@
 
 mkbootimg: bootimg.h mkbootimg.c sha.c sha.h
 	$(CC) $(CFLAGS) mkbootimg.c sha.c -o $@

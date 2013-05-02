@@ -2,16 +2,16 @@
 **
 ** Copyright 2007, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+** http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -29,18 +29,18 @@ struct boot_img_hdr
 {
     unsigned char magic[BOOT_MAGIC_SIZE];
 
-    unsigned kernel_size;  /* size in bytes */
-    unsigned kernel_addr;  /* physical load addr */
+    unsigned kernel_size; /* size in bytes */
+    unsigned kernel_addr; /* physical load addr */
 
     unsigned ramdisk_size; /* size in bytes */
     unsigned ramdisk_addr; /* physical load addr */
 
-    unsigned second_size;  /* size in bytes */
-    unsigned second_addr;  /* physical load addr */
+    unsigned second_size; /* size in bytes */
+    unsigned second_addr; /* physical load addr */
 
-    unsigned tags_addr;    /* physical addr for kernel tags */
-    unsigned page_size;    /* flash page size we assume */
-    unsigned unused[2];    /* future expansion: should be 0 */
+    unsigned tags_addr; /* physical addr for kernel tags */
+    unsigned page_size; /* flash page size we assume */
+    unsigned unused[2]; /* future expansion: should be 0 */
 
     unsigned char name[BOOT_NAME_SIZE]; /* asciiz product name */
     
@@ -50,14 +50,14 @@ struct boot_img_hdr
 };
 
 /*
-** +-----------------+ 
-** | boot header     | 1 page
 ** +-----------------+
-** | kernel          | n pages  
+** | boot header | 1 page
 ** +-----------------+
-** | ramdisk         | m pages  
+** | kernel | n pages
 ** +-----------------+
-** | second stage    | o pages
+** | ramdisk | m pages
+** +-----------------+
+** | second stage | o pages
 ** +-----------------+
 **
 ** n = (kernel_size + page_size - 1) / page_size
@@ -68,29 +68,29 @@ struct boot_img_hdr
 ** 1. kernel and ramdisk are required (size != 0)
 ** 2. second is optional (second_size == 0 -> no second)
 ** 3. load each element (kernel, ramdisk, second) at
-**    the specified physical address (kernel_addr, etc)
-** 4. prepare tags at tag_addr.  kernel_args[] is
-**    appended to the kernel commandline in the tags.
+** the specified physical address (kernel_addr, etc)
+** 4. prepare tags at tag_addr. kernel_args[] is
+** appended to the kernel commandline in the tags.
 ** 5. r0 = 0, r1 = MACHINE_TYPE, r2 = tags_addr
 ** 6. if second_size != 0: jump to second_addr
-**    else: jump to kernel_addr
+** else: jump to kernel_addr
 */
 
 #if 0
 typedef struct ptentry ptentry;
 
 struct ptentry {
-    char name[16];      /* asciiz partition name    */
-    unsigned start;     /* starting block number    */
-    unsigned length;    /* length in blocks         */
-    unsigned flags;     /* set to zero              */
+char name[16]; /* asciiz partition name */
+unsigned start; /* starting block number */
+unsigned length; /* length in blocks */
+unsigned flags; /* set to zero */
 };
 
 /* MSM Partition Table ATAG
 **
 ** length: 2 + 7 * n
-** atag:   0x4d534d70
-**         <ptentry> x n
+** atag: 0x4d534d70
+** <ptentry> x n
 */
 #endif
 

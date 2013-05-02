@@ -4,14 +4,14 @@
 **
 ** Redistribution and use in source and binary forms, with or without
 ** modification, are permitted provided that the following conditions are met:
-**     * Redistributions of source code must retain the above copyright
-**       notice, this list of conditions and the following disclaimer.
-**     * Redistributions in binary form must reproduce the above copyright
-**       notice, this list of conditions and the following disclaimer in the
-**       documentation and/or other materials provided with the distribution.
-**     * Neither the name of Google Inc. nor the names of its contributors may
-**       be used to endorse or promote products derived from this software
-**       without specific prior written permission.
+** * Redistributions of source code must retain the above copyright
+** notice, this list of conditions and the following disclaimer.
+** * Redistributions in binary form must reproduce the above copyright
+** notice, this list of conditions and the following disclaimer in the
+** documentation and/or other materials provided with the distribution.
+** * Neither the name of Google Inc. nor the names of its contributors may
+** be used to endorse or promote products derived from this software
+** without specific prior written permission.
 **
 ** THIS SOFTWARE IS PROVIDED BY Google Inc. ``AS IS'' AND ANY EXPRESS OR
 ** IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -27,7 +27,7 @@
 
 #include "sha.h"
 
-// Some machines lack byteswap.h and endian.h.  These have to use the
+// Some machines lack byteswap.h and endian.h. These have to use the
 // slower code, even if they're little-endian.
 
 #if defined(HAVE_ENDIAN_H) && defined(HAVE_LITTLE_ENDIAN)
@@ -59,11 +59,11 @@ static void SHA1_Transform(SHA_CTX* ctx) {
     D = ctx->state[3];
     E = ctx->state[4];
 
-#define SHA_F1(A,B,C,D,E,t)                     \
-    E += ror27(A) +                             \
-        (W[t] = bswap_32(ctx->buf.w[t])) +      \
-        (D^(B&(C^D))) + 0x5A827999;             \
-    B = ror2(B);
+#define SHA_F1(A,B,C,D,E,t) \
+E += ror27(A) + \
+(W[t] = bswap_32(ctx->buf.w[t])) + \
+(D^(B&(C^D))) + 0x5A827999; \
+B = ror2(B);
 
     for (t = 0; t < 15; t += 5) {
         SHA_F1(A,B,C,D,E,t + 0);
@@ -72,15 +72,15 @@ static void SHA1_Transform(SHA_CTX* ctx) {
         SHA_F1(C,D,E,A,B,t + 3);
         SHA_F1(B,C,D,E,A,t + 4);
     }
-    SHA_F1(A,B,C,D,E,t + 0);  // 16th one, t == 15
+    SHA_F1(A,B,C,D,E,t + 0); // 16th one, t == 15
 
 #undef SHA_F1
 
-#define SHA_F1(A,B,C,D,E,t)                                     \
-    E += ror27(A) +                                             \
-        (W[t] = ror31(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16])) +   \
-        (D^(B&(C^D))) + 0x5A827999;                             \
-    B = ror2(B);
+#define SHA_F1(A,B,C,D,E,t) \
+E += ror27(A) + \
+(W[t] = ror31(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16])) + \
+(D^(B&(C^D))) + 0x5A827999; \
+B = ror2(B);
 
     SHA_F1(E,A,B,C,D,t + 1);
     SHA_F1(D,E,A,B,C,t + 2);
@@ -89,11 +89,11 @@ static void SHA1_Transform(SHA_CTX* ctx) {
 
 #undef SHA_F1
 
-#define SHA_F2(A,B,C,D,E,t)                                     \
-    E += ror27(A) +                                             \
-        (W[t] = ror31(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16])) +   \
-        (B^C^D) + 0x6ED9EBA1;                                   \
-    B = ror2(B);
+#define SHA_F2(A,B,C,D,E,t) \
+E += ror27(A) + \
+(W[t] = ror31(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16])) + \
+(B^C^D) + 0x6ED9EBA1; \
+B = ror2(B);
 
     for (t = 20; t < 40; t += 5) {
         SHA_F2(A,B,C,D,E,t + 0);
@@ -105,11 +105,11 @@ static void SHA1_Transform(SHA_CTX* ctx) {
 
 #undef SHA_F2
 
-#define SHA_F3(A,B,C,D,E,t)                                     \
-    E += ror27(A) +                                             \
-        (W[t] = ror31(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16])) +   \
-        ((B&C)|(D&(B|C))) + 0x8F1BBCDC;                         \
-    B = ror2(B);
+#define SHA_F3(A,B,C,D,E,t) \
+E += ror27(A) + \
+(W[t] = ror31(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16])) + \
+((B&C)|(D&(B|C))) + 0x8F1BBCDC; \
+B = ror2(B);
 
     for (; t < 60; t += 5) {
         SHA_F3(A,B,C,D,E,t + 0);
@@ -121,11 +121,11 @@ static void SHA1_Transform(SHA_CTX* ctx) {
 
 #undef SHA_F3
 
-#define SHA_F4(A,B,C,D,E,t)                                     \
-    E += ror27(A) +                                             \
-        (W[t] = ror31(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16])) +   \
-        (B^C^D) + 0xCA62C1D6;                                   \
-    B = ror2(B);
+#define SHA_F4(A,B,C,D,E,t) \
+E += ror27(A) + \
+(W[t] = ror31(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16])) + \
+(B^C^D) + 0xCA62C1D6; \
+B = ror2(B);
 
     for (; t < 80; t += 5) {
         SHA_F4(A,B,C,D,E,t + 0);
@@ -188,7 +188,7 @@ const uint8_t* SHA_final(SHA_CTX* ctx) {
     return ctx->buf.b;
 }
 
-#else   // #if defined(HAVE_ENDIAN_H) && defined(HAVE_LITTLE_ENDIAN)
+#else // #if defined(HAVE_ENDIAN_H) && defined(HAVE_LITTLE_ENDIAN)
 
 #define rol(bits, value) (((value) << (bits)) | ((value) >> (32 - (bits))))
 
@@ -199,7 +199,7 @@ static void SHA1_transform(SHA_CTX *ctx) {
     int t;
 
     for(t = 0; t < 16; ++t) {
-        uint32_t tmp =  *p++ << 24;
+        uint32_t tmp = *p++ << 24;
         tmp |= *p++ << 16;
         tmp |= *p++ << 8;
         tmp |= *p++;
