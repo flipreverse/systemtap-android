@@ -1,1 +1,2 @@
-/media/playground/kernel/android-omap
+KERNEL_ARCH=arm
+KERNEL_SRC=/media/playground/kernel/android-omap

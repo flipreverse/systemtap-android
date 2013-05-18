@@ -9,7 +9,9 @@ STAP=$PREFIX"/installed/bin/stap"
 TAPSETS=$PREFIX"/installed/share/systemtap/tapset/"
 STAP_RUNTIME=$PREFIX"/installed/share/systemtap/runtime/"
 
-COMPILER_PREFIX_LIST=("arm-eabi-" "arm-none-linux-gnueabi-" "arm-none-eabi-")
+ARCHITECTURES=("x86" "arm")
+COMPILER_PREFIX_LIST_ARM=("arm-eabi-" "arm-none-linux-gnueabi-" "arm-none-eabi-")
+COMPILER_PREFIX_LIST_X86=("" "i686-linux-android-")
 
 function listSupportedDevices()
 {
@@ -30,7 +32,9 @@ function listSupportedDevices()
 
 function checkCompiler()
 {
-	for cur_compiler_prefix in ${COMPILER_PREFIX_LIST[@]}
+	eval COMPILER_PREFIX_LIST=( \"\${COMPILER_PREFIX_LIST_`echo ${KERNEL_ARCH}| tr '[:lower:]' '[:upper:]'`[@]}\")
+
+	for cur_compiler_prefix in "${COMPILER_PREFIX_LIST[@]}"
 	do
 		CUR_GCC="${cur_compiler_prefix}gcc"
 		RET=`${CUR_GCC} --version 2>&1`
@@ -58,7 +62,23 @@ function getKernelInfos()
 
 	if [ -f ${CONF_FILE} ];
 	then
-		KERNEL_SRC=`cat ${CONF_FILE}`
+		#KERNEL_SRC=`cat ${CONF_FILE}`
+		. ${CONF_FILE}
+
+		ARCH_FOUND=0
+		for arch in ${ARCHITECTURES[@]}
+		do
+			if [ ${arch} = ${KERNEL_ARCH} ];
+			then
+				ARCH_FOUND=1
+			fi
+		done
+		if [ ${ARCH_FOUND} -eq 0 ];
+		then
+			echo "unknown kernel architecture '${KERNEL_ARCH}'. Check the corresponding file: ${CONF_FILE}" >&2
+			exit 1
+		fi
+
 		if [ ! -d ${KERNEL_SRC} ];
 		then
 			echo "kernel source tree (${KERNEL_SRC}) does not exit. Check the corresponding config file: ${CONF_FILE}" >&2
@@ -82,9 +102,9 @@ then
 	usage $0
 fi
 
-checkCompiler
-
 getKernelInfos $2
+
+checkCompiler
 
 SCRIPT=$1
 if [ ! -f ${SCRIPT_DIR}/${SCRIPT}".stp" ];
@@ -105,7 +125,14 @@ if [ ! -d ${MODULE_DIR}"/"${DEVICE} ]; then
 	mkdir ${MODULE_DIR}"/"${DEVICE}
 fi
 
-STAP_CMD="${STAP} -p 4 -v ${3} -a arm -B CROSS_COMPILE=${COMPILER_PREFIX} -r ${KERNEL_SRC} -j ${TAPSETS} -R ${STAP_RUNTIME} -t -g -m ${MODULE_NAME} ${SCRIPT_DIR}/${SCRIPT}.stp"
+if [ -z ${COMPILER_PREFIX} ];
+then
+	CROSS_COMPILE=""
+else
+	CROSS_COMPILE="-B CROSS_COMPILE=${COMPILER_PREFIX}"
+fi
+
+STAP_CMD="${STAP} -p 4 -v ${3} -a ${KERNEL_ARCH} ${CROSS_COMPILE} -r ${KERNEL_SRC} -j ${TAPSETS} -R ${STAP_RUNTIME} -t -g -m ${MODULE_NAME} ${SCRIPT_DIR}/${SCRIPT}.stp"
 echo "Executing: ${STAP_CMD}"
 ${STAP_CMD}
 
