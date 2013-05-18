@@ -1,1 +1,1 @@
-1. Make buid_module.sh architecuture independet. A kernels architecture should be defined in the config
+x Make buid_module.sh architecuture independet. A kernels architecture should be defined in the config
