@@ -9,3 +9,6 @@ installed
 *.ko
 # ... and config
 *.conf
+# Object and protobuf files are waste..
+*.o
+*.pb.*
