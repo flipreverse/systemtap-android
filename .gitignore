@@ -2,6 +2,7 @@
 elfutils-*
 # ... except the tarball
 !eltutils-*.tar.bz2
+installed
 # Ignore any systemtap script as well ...
 *.stp
 # ... as every module
