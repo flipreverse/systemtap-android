@@ -1,0 +1,10 @@
+# Ignore any unpacked elfutils directory ...
+elfutils-*
+# ... except the tarball
+!eltutils-*.tar.bz2
+# Ignore any systemtap script as well ...
+*.stp
+# ... as every module
+*.ko
+# ... and config
+*.conf
