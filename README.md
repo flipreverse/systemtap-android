@@ -65,7 +65,7 @@ Transfer a module to a device via wifi
 
 2. To transfer a module run the following command
 
-	./tools/stapandroid/stapandroid [-p <port>] <ip address/hostname> send <path to module>
+	./tools/stapandroid/stapandroid [-p &lt;port&gt;] &lt;ip address/hostname&gt; send &lt;path to module&gt;
 
 The tools supports further commands like
 - start
@@ -73,8 +73,17 @@ The tools supports further commands like
 - delete
 - list
 
+Tools
+-----
+The `tools` subdirectory contains two tools. First, two programs to extract and pack boot images for android. They are located in `tools/bootimg`.
+Second, a tool to remote control an android device running the systemtapp application. It is called `stapandroid`. As presented in the previous section
+it can execute several commands.
+
+Both directories contain makefiles to simplify the build process. A simple `make -C tools/<directory>/` will do. There are targets to install/uninstall the binaries on your system.
+They will ask for the root password inorder to install the binaries in `/usr/local/bin`.
+
 Sources
 --------
-[1] http://sourceware.org/systemtap/documentation.html
-[2] https://android.googlesource.com/platform/prebuilt
-[3] http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition/
+- [1] http://sourceware.org/systemtap/documentation.html
+- [2] https://android.googlesource.com/platform/prebuilt
+- [3] http://www.mentor.com/embedded-software/sourcery-tools/sourcery-codebench/editions/lite-edition/
