@@ -1,1 +1,5 @@
 x Make buid_module.sh architecuture independet. A kernels architecture should be defined in the config
+
+- create FAQ:
+	1. "exec file format error" different toolchains for kernel and module
+- parameter for automatic transfer to device
