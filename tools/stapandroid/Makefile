@@ -57,7 +57,7 @@ install: $(BINARIES)
 
 uninstall:
 		@for bin in "$(BINARIES)"; do \
-		sudo rm $$bin; \
+		sudo rm /usr/local/bin/$$bin; \
 		done
 
 .PHONY: all clean install uninstall
