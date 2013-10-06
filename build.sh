@@ -2,6 +2,7 @@
 CUR_DIR=`pwd`
 INSTALL_DIR=${CUR_DIR}"/installed"
 SRC_DIR=${CUR_DIR}"/src"
+TOOLS_DIR=${CUR_DIR}"/tools"
 
 ELFUTILS_VERSION="0.155"
 ELFUTILS_DIR="${CUR_DIR}/elfutils-"${ELFUTILS_VERSION}
@@ -10,6 +11,7 @@ ELFUTILS_TAR="elfutils-"${ELFUTILS_VERSION}".tar.bz2"
 CONFIGURE_OUTPUT="${SRC_DIR}/configure_out.txt"
 MAKE_OUTPUT="${SRC_DIR}/make_out.txt"
 ANDROID_BUILD_OUTPUT="${SRC_DIR}/android_build_out.txt"
+TOOLS_OUTPUT="${TOOLS_DIR}/make_out.txt"
 NUM_CPUS=`grep -c ^processor /proc/cpuinfo`	
 BUILDSCRIPT_ANDROID="./build_android.sh"
 
@@ -71,9 +73,18 @@ make install >> ${MAKE_OUTPUT} 2>&1
 echo "Starting buildscript for android..."
 ${BUILDSCRIPT_ANDROID} > ${ANDROID_BUILD_OUTPUT} 2>&1
 
+echo "Building bootimg tools..."
+echo "make -C ${TOOLS_DIR}/bootimg" > ${TOOLS_OUTPUT}
+make -C ${TOOLS_DIR}/bootimg >> ${TOOLS_OUTPUT} 2>&1
+
+echo "Building stapandroid tool..."
+echo "make -C ${TOOLS_DIR}/stapandroid" >> ${TOOLS_OUTPUT}
+make -C ${TOOLS_DIR}/stapandroid >> ${TOOLS_OUTPUT} 2>&1
+
 echo "Information about every step during the build process is located at ${SRC_DIR}:"
 echo "configure:	${CONFIGURE_OUTPUT}"
 echo "make:		${MAKE_OUTPUT}"
 echo "android binaries:	${ANDROID_BUILD_OUTPUT}"
+echo "tools:	${TOOLS_OUT}"
 
 cd ${PWD}
