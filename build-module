@@ -92,7 +92,7 @@ function getKernelInfos()
 
 function usage()
 {
-	echo "usage: $1 <skriptname> <device>"
+	echo "usage: $1 <skriptname> <device> [stap arguments (forwardded to the stap compiler)]]"
 	listSupportedDevices
 	exit 1
 }
