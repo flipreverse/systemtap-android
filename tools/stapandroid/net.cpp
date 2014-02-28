@@ -12,98 +12,90 @@
 #include <string>
 #include <fstream>
 
-using SystemTapMessage::SystemTapMessageObject;
 using SystemTapMessage::MessageType;
-using SystemTapMessage::ModuleListPayload;
+using SystemTapMessage::ModuleList;
 using SystemTapMessage::ModuleInfo;
-using SystemTapMessage::SendModulePayload;
-using SystemTapMessage::AckPayload;
-using SystemTapMessage::ModulePayload;
+using SystemTapMessage::SendModule;
+using SystemTapMessage::Ack;
 using std::string;
 using std::fstream;
 
-static SystemTapMessageObject msgObject;
-
 static int connectToDevice(char *pIP, int pPort);
-static int sendToDevice(int pFD,SystemTapMessageObject *pMsgObject );
-static SystemTapMessageObject* receiveFromDevice(int pFD);
+static int sendToDevice(int pFD,int pMsgType, char *pData, int pDataSize);
+static char* receiveFromDevice(int pFD, int *pMsgType, int *pDataSize);
 
-int controlModule(char *pIP, int pPort, char *pName, MessageType pType) {
-	int fd = 0;
-	string modulePayloadRAW;
-	ModulePayload modulePayload;
-	AckPayload ackPayload;
-	string ackPayloadRAW;
-	SystemTapMessageObject *rcvMsgObject = NULL;
+int controlModule(char *pIP, int pPort, char *pName, SystemTapMessage::ModuleStatus pStatus) {
+	int fd = 0, msgType = 0, msgSize = 0;
+	char *msgBuffer = NULL;
+	ModuleInfo moduleInfo;
+	Ack ack;
 	
-	modulePayload.Clear();
+	moduleInfo.Clear();
 	// Set the module name, which we want to control
-	modulePayload.set_name(pName);
-	// Serialize the module information to a string
-	if (!modulePayload.SerializeToString(&modulePayloadRAW)) {
-		cerr << "Can't serialize ModulePayload" << endl;
+	moduleInfo.set_name(pName);
+	// Set the modules desired status
+	moduleInfo.set_status(pStatus);
+	// Serialize the module information to a byte array
+	msgBuffer = (char*)malloc(moduleInfo.ByteSize() * sizeof(char));
+	if (!moduleInfo.SerializeToArray(msgBuffer,moduleInfo.ByteSize())) {
+		cerr << "Can't serialize SystemTapMessageObject to byte array" << endl;
 		return -1;
 	}
-	
-	msgObject.Clear();
-	// Set the message type and its payload
-	msgObject.set_type(pType);
-	msgObject.set_payload(modulePayloadRAW);	
 	
 	if ((fd = connectToDevice(pIP,pPort)) == -1) {
 		return -1;
 	}
 
-	if (sendToDevice(fd,&msgObject) < 0) {
+	if (sendToDevice(fd,SystemTapMessage::CONTROL_MODULE,msgBuffer,moduleInfo.ByteSize()) < 0) {
 		close(fd);
+		free(msgBuffer);
 		return -1;
 	}
+	free(msgBuffer);
 	// An answer is expected
-	if ((rcvMsgObject = receiveFromDevice(fd)) == NULL) {
+	if ((msgBuffer = receiveFromDevice(fd,&msgType,&msgSize)) == NULL) {
 		close(fd);
 		return -1;
-	} else {	
-		if (rcvMsgObject->type() == SystemTapMessage::ACK) {
-			// Parse the messages payload
-			ackPayloadRAW = rcvMsgObject->payload();
-			if (!ackPayload.ParseFromString(ackPayloadRAW)) {
-				cerr << "Can't parse AckPayload" << endl;
-				delete rcvMsgObject;
+	} else {
+		if (msgType == SystemTapMessage::ACK) {
+			ack.Clear();
+			// Parse the response
+			if (!ack.ParseFromArray(msgBuffer,msgSize)) {
+				printf("Can't parse ack. buffer size: %d\n",msgSize);
+				free(msgBuffer);
 				return -1;
 			}
 			// Did we get an ack for the right message type?
-			if (ackPayload.ackedtype() != pType) {
+			if (ack.ackedtype() != SystemTapMessage::CONTROL_MODULE) {
 				cerr << "Device acked wrong message!" << endl;
-				delete rcvMsgObject;
 				return -1;
 			}
 			// An ack just tells us that the device got the instruction to start, stop or delete it.
 			// It does *not* say anything about the result of this operation.
-			if (pType == SystemTapMessage::START_MODULE) {
+			if (pStatus == SystemTapMessage::RUNNING) {
 				cout << "Instructed device to start module " << pName << endl;
-			} else if (pType == SystemTapMessage::STOP_MODULE) {
+			} else if (pStatus == SystemTapMessage::STOPPED) {
 				cout << "Instructed device to stop module " << pName << endl;
-			} else if (pType == SystemTapMessage::DELETE_MODULE) {
+			} else if (pStatus == SystemTapMessage::DELETED) {
 				cout << "Instructed device to delete module " << pName << endl;
 			}
 		}
 	}
-	delete rcvMsgObject;
+	free(msgBuffer);
 	
 	return 0;
 }
 
 int sendModule(char *pIP, int pPort, char *pFileName, bool pIgnoreModuleSizeRestriction) {
-	int fd = 0;
-	char *moduleFileContent = NULL;
+	int fd = 0, msgType = 0, msgSize = 0;
+	char *moduleFileContent = NULL, *msgBuffer = NULL;
 	struct stat moduleFileInfo;
-	SystemTapMessageObject *rcvMsgObject = NULL;
-	SendModulePayload sendModulePayload;
-	AckPayload ackPayload;
-	string ackPayloadRAW,sendModulePayloadRAW, moduleName;
+	SendModule sendModule;
+	Ack ack;
+	string  moduleName;
 	fstream *in = NULL;
 
-	// To allocate an appropriate buffer the concret file size is need. Hence, stat the file.
+	// To allocate an appropriate buffer the particular file size is need. Hence, stat the file.
 	if (stat(pFileName,&moduleFileInfo) != 0) {
 		perror("Can't stat module file");
 		return -1;
@@ -145,96 +137,88 @@ int sendModule(char *pIP, int pPort, char *pFileName, bool pIgnoreModuleSizeRest
 	// Strip off the path and the module extension to retrieve the module name
 	moduleName = basename(pFileName);
 	moduleName = moduleName.substr(0,moduleName.find_first_of("."));
-	sendModulePayload.Clear();
+	sendModule.Clear();
 	// Set module name and content 
-	sendModulePayload.set_name(moduleName);
-	sendModulePayload.set_data(moduleFileContent,moduleFileInfo.st_size);
-	// Serialize message payload to string
-	if (!sendModulePayload.SerializeToString(&sendModulePayloadRAW)) {
-		cerr << "Can't serialize SendModulePayload" << endl;
+	sendModule.set_name(moduleName);
+	sendModule.set_data(moduleFileContent,moduleFileInfo.st_size);
+	// Serialize message to an array
+	msgBuffer = (char*)malloc(sendModule.ByteSize() * sizeof(char));
+	if (!sendModule.SerializeToArray(msgBuffer,sendModule.ByteSize())) {
+		cerr << "Can't serialize SendModule" << endl;
 		free(moduleFileContent);
 		return -1;
 	}
-	
-	msgObject.Clear();
-	// Assign message type and payload to message object
-	msgObject.set_type(SystemTapMessage::SEND_MODULE);
-	msgObject.set_payload(sendModulePayloadRAW);	
-	
+
 	cout << "Sending module " << pFileName << " ..." << endl;
 	if ((fd = connectToDevice(pIP,pPort)) == -1) {
 		free(moduleFileContent);
 		return -1;
 	}
 
-	if (sendToDevice(fd,&msgObject) < 0) {
+	if (sendToDevice(fd,SystemTapMessage::SEND_MODULE,msgBuffer,sendModule.ByteSize()) < 0) {
 		close(fd);
 		free(moduleFileContent);
+		free(msgBuffer);
 		return -1;
 	}
 	free(moduleFileContent);
+	free(msgBuffer);
 	// Expecting an acknowledge
-	if ((rcvMsgObject = receiveFromDevice(fd)) == NULL) {
+	if ((msgBuffer = receiveFromDevice(fd,&msgType,&msgSize)) == NULL) {
 		close(fd);
 		return -1;
 	} else {	
-		if (rcvMsgObject->type() == SystemTapMessage::ACK) {
-			// Get and parse the message payload...
-			ackPayloadRAW = rcvMsgObject->payload();
-			if (!ackPayload.ParseFromString(ackPayloadRAW)) {
+		if (msgType == SystemTapMessage::ACK) {
+			// Parse the response
+			if (!ack.ParseFromArray(msgBuffer,msgSize)) {
 				cerr << "Can't parse AckPayload" << endl;
-				delete rcvMsgObject;
+				free(msgBuffer);
 				return -1;
 			}
 			// Need an ack for SEND_MODULE
-			if (ackPayload.ackedtype() != SystemTapMessage::SEND_MODULE) {
+			if (ack.ackedtype() != SystemTapMessage::SEND_MODULE) {
 				cerr << "Device acked wrong message!" << endl;
-				delete rcvMsgObject;
+				free(msgBuffer);
 				return -1;
 			}
 		}
 	}
-	delete rcvMsgObject;
+	free(msgBuffer);
 	
 	return 0;
 }
 
 int listModules(char *pIP, int pPort) {
-	int fd = 0;
-	SystemTapMessageObject *rcvMsgObject = NULL;
-	string payload;
-	ModuleListPayload moduleListPayload;
+	int fd = 0, msgType = 0, msgSize = 0;
+	char *msgBuffer = NULL;
 	ModuleInfo moduleInfo;
+	ModuleList moduleList;
 	
 	if ((fd = connectToDevice(pIP,pPort)) == -1) {
 		exit(EXIT_FAILURE);
 	}
 	
-	msgObject.Clear();
-	msgObject.set_type(SystemTapMessage::LIST_MODULES);
-	
-	if (sendToDevice(fd,&msgObject) < 0) {
+	if (sendToDevice(fd,SystemTapMessage::LIST_MODULES,NULL,0) < 0) {
 		close(fd);
 	}
-    // Expecting an acknowledge
-	if ((rcvMsgObject = receiveFromDevice(fd)) == NULL) {
+    // Expecting a response
+	if ((msgBuffer = receiveFromDevice(fd,&msgType,&msgSize)) == NULL) {
 		close(fd);
 		return -1;
 	} else {	
-		if (rcvMsgObject->type() == SystemTapMessage::MODULE_LIST) {
-			// Get and parse the message payload...
-			payload = rcvMsgObject->payload();
-			if (!moduleListPayload.ParseFromString(payload)) {
-				cerr << "Can't parse ModuleListPayload from string" << endl;
-				delete rcvMsgObject;
+		if (msgType == SystemTapMessage::MODULE_LIST) {
+			// Parse the message ...
+			if (!moduleList.ParseFromArray(msgBuffer,msgSize)) {
+				cerr << "Can't parse ModuleList from array" << endl;
+				free(msgBuffer);
 				return -1;
 			}
 			cout << "The following modules are currently installed:" << endl;
-			if (moduleListPayload.modules_size() == 0) {
+			if (moduleList.modules_size() == 0) {
 				cout << "none" << endl;
 			}
-			for (int i = 0; i < moduleListPayload.modules_size(); i++) {
-				moduleInfo = moduleListPayload.modules(i);
+			for (int i = 0; i < moduleList.modules_size(); i++) {
+				moduleInfo = moduleList.modules(i);
 				cout << moduleInfo.name() << " --> ";
 				switch (moduleInfo.status()) {
 					case SystemTapMessage::RUNNING:
@@ -249,7 +233,7 @@ int listModules(char *pIP, int pPort) {
 			cerr << "Got unexpected response to LIST_MODULES" << endl;
 		}
 	}
-	delete rcvMsgObject;
+	free(msgBuffer);
 	return 0;
 }
 
@@ -284,65 +268,72 @@ static int connectToDevice(char *pHost, int pPort) {
 	return socketFD;
 }
 
-static int sendToDevice(int pFD,SystemTapMessageObject *pMsgObject ) {
-	int msgObjectSize = 0, sendBytesSize = 0, sendBytesObject;
-	char *buffer = NULL;
+static int sendToDevice(int pFD,int pMsgType, char *pMsg, int pMsgSize) {
+	int sendBytesType = 0, sendBytesSize = 0, sendBytesObject;
 
-	buffer = (char*)malloc(pMsgObject->ByteSize() * sizeof(char));
-	if (!pMsgObject->SerializeToArray(buffer,pMsgObject->ByteSize())) {
-		cerr << "Can't serialize SystemTapMessageObject to byte array" << endl;
-		return -1;
-	}
-
-	msgObjectSize = pMsgObject->ByteSize();
 	/* The concret byte protocol is structured as follows:
+	 *  4 bytes: message type in big endian (network byte order)
 	 *  4 bytes: message size in big endian (network byte order)
 	 *  <message size> bytes: the serialized procotol object
 	 * 
-	 * the first four bytes has to be in big endian order, because the java inputstream (readInt()) expects it.
+	 * the first eight bytes has to be in big endian order, because the java inputstream (readInt()) expects it.
 	 * In network context a long value consists of four bytes.
 	 */
-	msgObjectSize = htonl(msgObjectSize);
-	sendBytesSize = write(pFD,&msgObjectSize,sizeof(msgObjectSize));
+	// Java expects integers in network byte order (see InputStream.readInt())
+	pMsgType = htonl(pMsgType);
+	sendBytesType = write(pFD,&pMsgType,sizeof(pMsgType));
+    if (sendBytesType < 0) {
+		perror("Cant't write to socket");
+		return sendBytesType;
+    }
+
+	// Java expects integers in network byte order (see InputStream.readInt())
+	pMsgSize = htonl(pMsgSize);
+	sendBytesSize = write(pFD,&pMsgSize,sizeof(pMsgSize));
     if (sendBytesSize < 0) {
 		perror("Cant't write to socket");
 		return sendBytesSize;
     }
-    sendBytesObject = write(pFD,buffer,pMsgObject->ByteSize());
-    if (sendBytesObject < 0) {
-		perror("Cant't write to socket");
-		return sendBytesObject;
-    }
-    return sendBytesSize + sendBytesObject;
+    // Convert it back to host order otherwise the following write-call will send much more bytes than it should do.
+    pMsgSize = ntohl(pMsgSize);
+
+    if (pMsgSize > 0) {
+		sendBytesObject = write(pFD,pMsg,pMsgSize);
+		if (sendBytesObject < 0) {
+			perror("Cant't write to socket");
+			return sendBytesObject;
+		}
+	}
+    return sendBytesType + sendBytesSize + sendBytesObject;
 }
 
-static SystemTapMessageObject* receiveFromDevice(int pFD) {
-	int recvBytes = 0, objectSize = 0;
-	char *buffer = NULL;
-	SystemTapMessageObject *retMsgObj = NULL;
+static char* receiveFromDevice(int pFD, int *pMsgType, int *pMsgSize) {
+	int recvBytes = 0, msgType = 0, msgSize = 0;
+	char *msgBuffer = NULL;
 	
-	recvBytes = read(pFD,&objectSize,sizeof(objectSize));
+	recvBytes = read(pFD,&msgType,sizeof(msgType));
     if (recvBytes < 0) {
-		perror("Can't read protocol object size from socket");
+		perror("Can't read message type from socket");
 		return NULL;
 	}
-	buffer = (char*)malloc(objectSize * sizeof(char));
-	if (buffer == NULL) {
+	*pMsgType = ntohl(msgType);
+
+	recvBytes = read(pFD,&msgSize,sizeof(msgSize));
+    if (recvBytes < 0) {
+		perror("Can't read object size from socket");
+		return NULL;
+	}
+	*pMsgSize = ntohl(msgSize);
+
+	msgBuffer = (char*)malloc(msgSize * sizeof(char));
+	if (msgBuffer == NULL) {
 		perror("Can't allocate receive buffer");
 		return NULL;
 	}
-	recvBytes = read(pFD,buffer,objectSize);
+	recvBytes = read(pFD,msgBuffer,msgSize);
     if (recvBytes < 0) {
 		perror("Can't read from socket");
 		return NULL;
-	} else if (recvBytes > 0) {
-		retMsgObj = new SystemTapMessageObject();
-		retMsgObj->Clear();
-		if (!retMsgObj->ParseFromArray(buffer,recvBytes)) {
-			printf("Can't parse protobuf. array length: %d\n",recvBytes);
-			return NULL;
-		}
 	}
-	free(buffer);
-	return retMsgObj;
+	return msgBuffer;
 }

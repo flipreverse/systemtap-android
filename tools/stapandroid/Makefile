@@ -26,7 +26,6 @@ PROTOBUF_OBJ:=$(PROTOBUF_SRC:%.cc=%.o)
 STAP_ANDROID_SRC:=stapandroid.cpp net.cpp common.cpp
 STAP_ANDROID_OBJ:=$(STAP_ANDROID_SRC:%.cpp=%.o)
 
-
 all: $(BINARIES)
 
 $(PROTOBUF_SRC): $(PROTOBUF_DEF_FILE)
@@ -40,6 +39,10 @@ $(PROTOBUF_SRC): $(PROTOBUF_DEF_FILE)
 %.o: %.cc
 		@echo -e $(CC_TEXT)
 		$(OUTPUT)$(CXX) -c $(CXXFLAGS) $< -o $@
+
+stapandroid.o: net.cpp net.hpp common.cpp common.hpp
+
+net.o: net.hpp common.cpp common.hpp
 
 stapandroid: $(PROTOBUF_OBJ) $(STAP_ANDROID_OBJ)
 		@echo -e $(LD_TEXT)
