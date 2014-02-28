@@ -1,3 +1,6 @@
+/********************************************************************************************************/
+/*	Copied from https://github.com/CyanogenMod/android_system_core/tree/cm-10.2/mkbootimg/mkbootimg.c	*/
+/********************************************************************************************************/
 /* tools/mkbootimg/mkbootimg.c
 **
 ** Copyright 2007, The Android Open Source Project

@@ -1,3 +1,8 @@
+/************************************************************************************************************/
+/*	Copied from https://github.com/CyanogenMod/android_system_core/tree/cm-10.2/mkbootimg/unpackbootimg.c	*/
+/*	Used the source code as it is except the parameter "--dry-run". This was added by the author of this	*/
+/* 	project.																								*/
+/************************************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,3 +1,6 @@
+/********************************************************************************************************/
+/*	Copied from https://github.com/CyanogenMod/android_system_core/blob/cm-10.2/include/mincrypt/sha.h	*/
+/********************************************************************************************************/
 /* sha.h
 **
 ** Copyright 2008, The Android Open Source Project
