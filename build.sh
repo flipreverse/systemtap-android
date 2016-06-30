@@ -4,7 +4,7 @@ INSTALL_DIR=${CUR_DIR}"/installed"
 SRC_DIR=${CUR_DIR}"/src"
 TOOLS_DIR=${CUR_DIR}"/tools"
 
-ELFUTILS_VERSION="0.155"
+ELFUTILS_VERSION="0.166"
 ELFUTILS_DIR="${CUR_DIR}/elfutils-"${ELFUTILS_VERSION}
 ELFUTILS_TAR="elfutils-"${ELFUTILS_VERSION}".tar.bz2"
 
@@ -69,22 +69,47 @@ fi
 
 echo "Installing systemtap in ${INSTALL_DIR}..."
 make install >> ${MAKE_OUTPUT} 2>&1
+if [ $? -gt 0 ];
+then
+	echo "Error installing SystemTap. For further information look at ${MAKE_OUTPUT}" >&2
+	cd ${PWD}
+	exit 1
+fi
 
-echo "Starting buildscript for android..."
-${BUILDSCRIPT_ANDROID} > ${ANDROID_BUILD_OUTPUT} 2>&1
+echo "Starting buildscript for Android..."
+#${BUILDSCRIPT_ANDROID} > ${ANDROID_BUILD_OUTPUT} 2>&1
+echo "Skipping build of stap* for Android, because the build process is broken"
+if [ $? -gt 0 ];
+then
+	echo "Error compiling SystemTap for Android. For further information look at ${ANDROID_BUILD_OUTPUT}" >&2
+	cd ${PWD}
+	exit 1
+fi
 
 echo "Building bootimg tools..."
 echo "make -C ${TOOLS_DIR}/bootimg" > ${TOOLS_OUTPUT}
 make -C ${TOOLS_DIR}/bootimg >> ${TOOLS_OUTPUT} 2>&1
+if [ $? -gt 0 ];
+then
+	echo "Error compiling bootimg. For further information look at ${TOOLS_OUTPUT}" >&2
+	cd ${PWD}
+	exit 1
+fi
 
 echo "Building stapandroid tool..."
 echo "make -C ${TOOLS_DIR}/stapandroid" >> ${TOOLS_OUTPUT}
 make -C ${TOOLS_DIR}/stapandroid >> ${TOOLS_OUTPUT} 2>&1
+if [ $? -gt 0 ];
+then
+	echo "Error compiling stapandroid control tool. For further information look at ${TOOLS_OUTPUT}" >&2
+	cd ${PWD}
+	exit 1
+fi
 
 echo "Information about every step during the build process is located at ${SRC_DIR}:"
 echo "configure:	${CONFIGURE_OUTPUT}"
 echo "make:		${MAKE_OUTPUT}"
-echo "android binaries:	${ANDROID_BUILD_OUTPUT}"
+echo "Android binaries:	${ANDROID_BUILD_OUTPUT}"
 echo "tools:	${TOOLS_OUT}"
 
 cd ${PWD}
