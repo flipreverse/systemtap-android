@@ -40,7 +40,7 @@ then
 	make distclean > /dev/null 2>&1
 fi
 
-CONFIGURE_CMD="./configure --prefix=${INSTALL_DIR} --with-elfutils=${ELFUTILS_DIR}"
+CONFIGURE_CMD="./configure --prefix=${INSTALL_DIR} --with-elfutils=${ELFUTILS_DIR} --disable-docs"
 echo "Executing ${CONFIGURE_CMD}"
 ${CONFIGURE_CMD} > ${CONFIGURE_OUTPUT} 2>&1
 
