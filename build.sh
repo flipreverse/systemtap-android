@@ -77,8 +77,8 @@ then
 fi
 
 echo "Starting buildscript for Android..."
-#${BUILDSCRIPT_ANDROID} > ${ANDROID_BUILD_OUTPUT} 2>&1
-echo "Skipping build of stap* for Android, because the build process is broken"
+${BUILDSCRIPT_ANDROID} > ${ANDROID_BUILD_OUTPUT} 2>&1
+
 if [ $? -gt 0 ];
 then
 	echo "Error compiling SystemTap for Android. For further information look at ${ANDROID_BUILD_OUTPUT}" >&2
