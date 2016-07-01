@@ -10,7 +10,7 @@ TAPSETS=$PREFIX"/share/systemtap/tapset/"
 STAP_RUNTIME=$PREFIX"/share/systemtap/runtime/"
 
 ARCHITECTURES=("x86" "arm")
-COMPILER_PREFIX_LIST_ARM=("arm-eabi-" "arm-none-linux-gnueabi-" "arm-none-eabi-")
+COMPILER_PREFIX_LIST_ARM=("arm-eabi-" "arm-none-linux-gnueabi-" "arm-none-eabi-" "arm-unknown-linux-gnueabi-")
 COMPILER_PREFIX_LIST_X86=("" "i686-linux-android-")
 
 echo $SYSTEMTAP_DEBUGINFO_PATH
