@@ -13,7 +13,7 @@ DEB_TEXT ="DEB\t$<"
 
 CXX=g++
 CXXFLAGS= -g -Werror
-LDFLAGS=-lprotobuf
+LDFLAGS=-L/usr/local/lib -lprotobuf
 
 BINARIES:= stapandroid
 
