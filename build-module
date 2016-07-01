@@ -4,7 +4,7 @@ CONF_EXT=".conf"
 MODULE_DIR="modules"
 SCRIPT_DIR="scripts"
 
-PREFIX=`pwd`"/installed/
+PREFIX=`pwd`"/installed/"
 STAP=$PREFIX"/bin/stap"
 TAPSETS=$PREFIX"/share/systemtap/tapset/"
 STAP_RUNTIME=$PREFIX"/share/systemtap/runtime/"
