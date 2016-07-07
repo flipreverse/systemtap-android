@@ -32,7 +32,7 @@ ARCHITECTURES=("x86" "arm")
 COMPILER_PREFIX_LIST_ARM=("arm-eabi-" "arm-none-linux-gnueabi-" "arm-none-eabi-" "arm-unknown-linux-gnueabi-")
 COMPILER_PREFIX_LIST_X86=("" "i686-linux-android-")
 
-echo $SYSTEMTAP_DEBUGINFO_PATH
+export SYSTEMTAP_TAPSET=${TAPSETS}
 
 function listSupportedDevices()
 {
@@ -153,7 +153,7 @@ else
 	CROSS_COMPILE="-B CROSS_COMPILE=${COMPILER_PREFIX}"
 fi
 
-STAP_CMD="${STAP} -p 4 -v ${3} -a ${KERNEL_ARCH} ${CROSS_COMPILE} -r ${KERNEL_SRC} -K ${TAPSETS} -R ${STAP_RUNTIME} -t -g -m ${MODULE_NAME} ${SCRIPT_DIR}/${SCRIPT}.stp"
+STAP_CMD="${STAP} -p 4 -v ${3} -a ${KERNEL_ARCH} ${CROSS_COMPILE} -r ${KERNEL_SRC} -R ${STAP_RUNTIME} -t -g -m ${MODULE_NAME} ${SCRIPT_DIR}/${SCRIPT}.stp"
 echo "Executing: ${STAP_CMD}"
 ${STAP_CMD}
 
