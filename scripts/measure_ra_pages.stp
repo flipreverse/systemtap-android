@@ -54,7 +54,7 @@ probe syscall.creat.return ?
 	psyscall_end()
 }
 
-probe kernel.function("fd_install")
+probe kernel.function("fd_install").call
 {
         if (filenames[tid()] == "") next
 
