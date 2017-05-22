@@ -28,133 +28,133 @@ probe end
 	printf("syscalls:%d,total time:%d ms\n\n",count_syscalls_subset,total_time_subset);
 }
 
-probe nd_syscall.open* 
+probe syscall.open* 
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.open*.return 
+probe syscall.open*.return 
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
 }
 
-probe nd_syscall.creat 
+probe syscall.creat 
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.creat.return 
+probe syscall.creat.return 
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
 }
 
-probe nd_syscall.close 
+probe syscall.close 
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.close.return 
+probe syscall.close.return 
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
 }
 
-probe nd_syscall.write 
+probe syscall.write 
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.write.return 
+probe syscall.write.return 
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
 }
 
-probe nd_syscall.read 
+probe syscall.read 
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.read.return 
+probe syscall.read.return 
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
 }
 
-probe nd_syscall.pwrite* 
+probe syscall.pwrite* 
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.pwrite*.return 
+probe syscall.pwrite*.return 
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
 }
 
-probe nd_syscall.pread* 
+probe syscall.pread* 
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.pread*.return 
+probe syscall.pread*.return 
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
 }
 
-probe nd_syscall.lseek 
+probe syscall.lseek 
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.lseek.return 
+probe syscall.lseek.return 
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
 }
 
-probe nd_syscall.llseek 
+probe syscall.llseek 
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.llseek.return 
+probe syscall.llseek.return 
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
 }
 
-probe nd_syscall.unlink 
+probe syscall.unlink 
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.unlink.return 
+probe syscall.unlink.return 
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
 }
 
-probe nd_syscall.fork 
+probe syscall.fork 
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.fork.return 
+probe syscall.fork.return 
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
 }
 
-probe nd_syscall.vfork ?
+probe syscall.vfork ?
 {
 	psyscall_entry()
 }
 
-probe nd_syscall.vfork.return ?
+probe syscall.vfork.return ?
 {
 	if (!local_entry_time_subset[tid()]) next
 	psyscall_end()
