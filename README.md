@@ -1,8 +1,8 @@
 SystemTap for Android
 =====================
 
-This repository contains a collection of scripts, tools and sourcecode to build, install and run SystemTap on Android.
-For further information about SystemTap i would appreciate you to read the documentation published by the official SystemTap project [1].
+This repository contains a collection of scripts, tools, and sourcecode to build, install and run SystemTap on Android.
+For further information about SystemTap I would appreciate you to read the documentation published by the official SystemTap project [1].
 
 Requirments
 ------------
