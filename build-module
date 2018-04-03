@@ -23,17 +23,13 @@ CONF_EXT=".conf"
 MODULE_DIR="modules"
 SCRIPT_DIR="scripts"
 
-PREFIX=`pwd`"/installed/"
+#PREFIX=`pwd`"/installed/"
+PREFIX="/usr/local"
 STAP=$PREFIX"/bin/stap"
-TAPSETS=$PREFIX"/share/systemtap/tapset/"
-STAP_RUNTIME=$PREFIX"/share/systemtap/runtime/"
-STAP_TAPSET=$PREFIX"/share/systemtap/tapset/"
 
 ARCHITECTURES=("x86" "arm")
 COMPILER_PREFIX_LIST_ARM=("arm-eabi-" "arm-none-linux-gnueabi-" "arm-none-eabi-" "arm-unknown-linux-gnueabi-")
 COMPILER_PREFIX_LIST_X86=("" "i686-linux-android-")
-
-export SYSTEMTAP_TAPSET=${TAPSETS}
 
 function listSupportedDevices()
 {
@@ -154,7 +150,7 @@ else
 	CROSS_COMPILE="-B CROSS_COMPILE=${COMPILER_PREFIX}"
 fi
 
-STAP_CMD="${STAP} -p 4 -v ${3} -a ${KERNEL_ARCH} ${CROSS_COMPILE} -r ${KERNEL_SRC} -R ${STAP_RUNTIME} -K ${STAP_TAPSET} -t -g -m ${MODULE_NAME} ${SCRIPT_DIR}/${SCRIPT}.stp"
+STAP_CMD="${STAP} -p 4 -v ${3} -a ${KERNEL_ARCH} ${CROSS_COMPILE} -r ${KERNEL_SRC} -t -g -m ${MODULE_NAME} ${SCRIPT_DIR}/${SCRIPT}.stp"
 echo "Executing: ${STAP_CMD}"
 ${STAP_CMD}
 
