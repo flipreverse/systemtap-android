@@ -113,6 +113,7 @@ def parse_cmdline():
     parser.add_argument('-o', '--output', help='output directory', default='./')
     parser.add_argument('--pagesize', help='page size', type=parse_int,
                         choices=[2**i for i in range(11,18)], default=0)
+    parser.add_argument('--dry-run', help='Stop processing of boot.img after reading the header', action='store_true')
     return parser.parse_args()
 
 def seek_padding(f, size, pagesize):
@@ -240,6 +241,9 @@ def main():
     print('BOARD_PAGE_SIZE %d' % header.pagesize)
     print('BOARD_SECOND_SIZE %d' % header.second_size)
     print('BOARD_DT_SIZE %d' % header.dt_size)
+
+    if args.dry_run:
+	exit(0)
 
     if args.pagesize == 0:
         args.pagesize = header.pagesize
