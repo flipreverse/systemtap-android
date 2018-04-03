@@ -23,9 +23,7 @@ CONF_EXT=".conf"
 MODULE_DIR="modules"
 SCRIPT_DIR="scripts"
 
-#PREFIX=`pwd`"/installed/"
-PREFIX="/usr/local"
-STAP=$PREFIX"/bin/stap"
+STAP="stap"
 
 ARCHITECTURES=("x86" "arm")
 COMPILER_PREFIX_LIST_ARM=("arm-eabi-" "arm-none-linux-gnueabi-" "arm-none-eabi-" "arm-unknown-linux-gnueabi-")
