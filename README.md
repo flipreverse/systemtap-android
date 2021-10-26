@@ -10,7 +10,7 @@ Requirments
 
 	`git submodule init`
 
-	`git submodule upate`
+	`git submodule update`
 
 Building SystemTap
 ------------------
