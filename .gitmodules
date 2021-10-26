@@ -1,6 +1,6 @@
 [submodule "android-app"]
 	path = android-app
-	url = https://gitos.cs.tu-dortmund.de/systemtap4android/android-app.git
+	url = https://ess.cs.uos.de/git/software/systemtap4android/android-app.git
 [submodule "src"]
 	path = src
-	url = https://gitos.cs.tu-dortmund.de/systemtap4android/systemtap-src.git
+	url = https://ess.cs.uos.de/git/software/systemtap4android/systemtap-src
